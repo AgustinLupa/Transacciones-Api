@@ -15,5 +15,7 @@ namespace Transacciones.Interface
         public Task<dynamic> GetHistorialsaldosXFecha(short id_cartera, DateTime fecha_inicio, DateTime fecha_final);
 
         public Task RealizarTransaccion(int idCartera, decimal montoTransaccion, string descripcion, string tipoTransaccion);
+
+        public Task<int> CantidadDePaginas(int idCartera);
     }
 }

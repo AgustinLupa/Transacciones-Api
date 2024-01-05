@@ -110,3 +110,20 @@ BEGIN
 
     COMMIT; -- Se realiza la transacción de manera permanente.
 END RealizarTransaccion;
+
+CREATE OR REPLACE PROCEDURE ObtenerCantidadPaginas (
+    p_id_cartera IN NUMBER,
+    p_tamano_pagina IN NUMBER,
+    p_cantidad_paginas OUT NUMBER
+) AS
+    v_cantidad_registros NUMBER;
+BEGIN
+    -- Obtener la cantidad total de registros para la cartera específica
+    SELECT COUNT(id_historial)
+    INTO v_cantidad_registros
+    FROM HistorialSaldo
+    WHERE id_cartera = p_id_cartera;
+
+    -- Calcular la cantidad de páginas
+    p_cantidad_paginas := CEIL(v_cantidad_registros / p_tamano_pagina);
+END ObtenerCantidadPaginas;

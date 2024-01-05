@@ -21,7 +21,7 @@ namespace Transacciones.Controllers
             _context = context;
         }
 
-        [HttpPost("listarXcartera/{id}")]
+        [HttpPost("ListarXcartera/{id}")]
         public async Task<IActionResult> ListarXCartera(short id, [FromBody] int pagina)
         {
             if (pagina == null || pagina <= 0)
@@ -42,13 +42,13 @@ namespace Transacciones.Controllers
         }
         
 
-        [HttpPost("listarXfecha/{id}")]
+        [HttpPost("ListarXfecha/{id}")]
         public async Task<IActionResult> TraerPorcentajeXFecha(short id, [FromBody] FechaModel fechaModel)
         {
             return Ok(await _context.GetHistorialsaldosXFecha(id, fechaModel.fecha_inicio, fechaModel.fecha_fin));
         }
 
-        [HttpPost("listarXTipo")]
+        [HttpPost("ListarXTipo")]
         public async Task<IActionResult> TraerHistorialXTipo([FromBody] HistorialSaldoXTipo historialSaldo)
         {
             return Ok(await _context.GetHistorialsaldosXTipo(historialSaldo.Id_cartera, historialSaldo.Tipo_Transaccion, historialSaldo.Pagina));
@@ -61,5 +61,10 @@ namespace Transacciones.Controllers
             return Ok("se completo con exito");
         }
 
+        [HttpGet("NumeroPaginas/{id}")]
+        public async Task<IActionResult> ObtenerPaginas(int id)
+        {
+            return Ok(await _context.CantidadDePaginas(id));
+        }
     }
 }

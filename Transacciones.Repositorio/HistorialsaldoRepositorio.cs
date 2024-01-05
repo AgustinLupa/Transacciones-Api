@@ -21,6 +21,33 @@ namespace Transacciones.Repositorio
             _context = context;
         }
 
+        public async Task<int> CantidadDePaginas(int idCartera)
+        {
+            var parametroIdCartera = new OracleParameter("p_id_cartera", OracleDbType.Int32, ParameterDirection.Input)
+            {
+                Value = idCartera
+            };
+
+            var parametroTamanoPagina = new OracleParameter("p_tamano_pagina", OracleDbType.Int32, ParameterDirection.Input)
+            {
+                Value = 5
+            };
+
+            var parametroResultado = new OracleParameter("p_cantidad_paginas", OracleDbType.Int32, ParameterDirection.Output);
+
+            await _context.Database.ExecuteSqlRawAsync("BEGIN ObtenerCantidadPaginas(:p_id_cartera, :p_tamano_pagina, :p_cantidad_paginas); END;",
+                parametroIdCartera, parametroTamanoPagina, parametroResultado);
+
+            OracleDecimal oracleDecimalValue = (OracleDecimal)parametroResultado.Value;
+
+            decimal result = new decimal((double)oracleDecimalValue.Value);
+
+            // Obtener el valor de salida del parámetro           
+
+            return (int)result;
+
+        }
+
         public async Task<IEnumerable<Historialsaldo>> GetHistorialsaldo(short id_cartera, int pagina)
         {
             var parametroIdCartera = new OracleParameter("p_id_cartera", OracleDbType.Int32, ParameterDirection.Input)
@@ -52,38 +79,51 @@ namespace Transacciones.Repositorio
 
         public async Task<dynamic> GetHistorialsaldosXFecha(short id_cartera, DateTime fecha_inicio, DateTime fecha_final)
         {
-            var parametroIdCartera = new OracleParameter("p_id_cartera", OracleDbType.Int32, ParameterDirection.Input)
+
+
+            try
             {
-                Value = id_cartera
-            };
+                var parametroIdCartera = new OracleParameter("p_id_cartera", OracleDbType.Int32, ParameterDirection.Input)
+                {
+                    Value = id_cartera
+                };
 
 
-            var parametroFechaInicio = new OracleParameter("p_fecha_inicio", OracleDbType.Date, ParameterDirection.Input)
-            {
-                Value = fecha_inicio
-            };
+                var parametroFechaInicio = new OracleParameter("p_fecha_inicio", OracleDbType.Date, ParameterDirection.Input)
+                {
+                    Value = fecha_inicio
+                };
 
-            var parametroFechaFin = new OracleParameter("p_fecha_fin", OracleDbType.Date, ParameterDirection.Input)
-            {
-                Value = fecha_final
-            };
+                var parametroFechaFin = new OracleParameter("p_fecha_fin", OracleDbType.Date, ParameterDirection.Input)
+                {
+                    Value = fecha_final
+                };
 
-            // Crear el parámetro de salida
-            var parametroResultado = new OracleParameter("p_porcentaje_variacion", OracleDbType.Decimal, ParameterDirection.Output);
+                // Crear el parámetro de salida
+                var parametroResultado = new OracleParameter("p_porcentaje_variacion", OracleDbType.Decimal, ParameterDirection.Output);
 
-            // Llamada a la stored procedure
-            await _context.Database.ExecuteSqlRawAsync("BEGIN CalcularVariacionSaldoPorFecha(:p_id_cartera, :p_fecha_inicio, :p_fecha_fin, :p_porcentaje_variacion); END;",
+                // Llamada a la stored procedure
+
+                await _context.Database.ExecuteSqlRawAsync("BEGIN CalcularVariacionSaldoPorFecha(:p_id_cartera, :p_fecha_inicio, :p_fecha_fin, :p_porcentaje_variacion); END;",
                 parametroIdCartera, parametroFechaInicio, parametroFechaFin, parametroResultado);
 
-            // Obtener el resultado del porcentaje de variación
-            //var porcentajeVariacion = Convert.ToDecimal(parametroResultado.Value);
-            OracleDecimal oracleDecimalValue = (OracleDecimal)parametroResultado.Value;
 
-            // Convertir OracleDecimal a decimal
-            decimal porcentajeVariacion = new decimal((double)oracleDecimalValue.Value);
+                // Obtener el resultado del porcentaje de variación
+                //var porcentajeVariacion = Convert.ToDecimal(parametroResultado.Value);
+                OracleDecimal oracleDecimalValue = (OracleDecimal)parametroResultado.Value;
+
+                // Convertir OracleDecimal a decimal
+                decimal porcentajeVariacion = new decimal((double)oracleDecimalValue.Value);
 
 
-            return porcentajeVariacion;
+                return porcentajeVariacion;
+
+            }
+            catch (Exception)
+            {
+
+                return 0;
+            }
         }
 
         public async Task<IEnumerable<Historialsaldo>> GetHistorialsaldosXTipo(short id_cartera, string tipo_transaccion, int pagina)
